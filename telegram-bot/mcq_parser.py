@@ -4,6 +4,9 @@ def parse_mcq_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
+    # Pre-process content to protect the blank line after "Explanation:" from being split
+    content = re.sub(r'(Explanation:\s*\n)\s*\n', r'\1', content, flags=re.IGNORECASE)
+
     questions = []
     # Split by two or more newlines, which seems to separate question blocks
     question_blocks = re.split(r'\n\s*\n', content)
@@ -58,9 +61,13 @@ def parse_mcq_file(file_path):
     return questions
 
 if __name__ == '__main__':
+    import os
     # Assuming the text file is in the parent directory
     # In the GitHub Action, the paths will need to be correct.
-    parsed_questions = parse_mcq_file('../TOPIC 1 TO 10.txt')
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+    QUESTIONS_FILE_PATH = os.path.join(SCRIPT_DIR, '..', 'TOPIC 1 TO 10.txt')
+    
+    parsed_questions = parse_mcq_file(QUESTIONS_FILE_PATH)
     print(f"Successfully parsed {len(parsed_questions)} questions.")
     if parsed_questions:
         print("\nFirst Question:")
