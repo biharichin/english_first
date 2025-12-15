@@ -1,0 +1,42 @@
+name: Send Daily MCQs
+
+on:
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+  schedule:
+    # Runs at 9:30 UTC, which is 3:00 PM IST
+    - cron: '30 9 * * *'
+
+jobs:
+  send_questions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r telegram-bot/requirements.txt
+        
+      - name: Run Telegram Bot
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_IDS: ${{ secrets.CHAT_IDS }}
+        run: python telegram-bot/telegram_bot.py
+
+      - name: Commit progress
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'github-actions-bot@github.com'
+          git add telegram-bot/progress.txt
+          # Check if there are changes to commit
+          git diff --staged --quiet || git commit -m "Update MCQ progress"
+          git push
+        env:
+          # This token is automatically provided by GitHub Actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
