@@ -69,6 +69,7 @@ def main():
                 continue
             
             try:
+                # 1. Send the Quiz Poll
                 print(f"Sending question {question_number} to chat ID {chat_id}")
                 bot.send_poll(
                     chat_id=chat_id,
@@ -76,12 +77,23 @@ def main():
                     options=q['options'],
                     type=telegram.Poll.QUIZ,
                     correct_option_id=q['correct_option_index'],
-                    explanation=q.get('explanation', '')
+                    explanation=q.get('explanation', '') # Keep the ephemeral explanation too
                 )
-                # Add a small delay to avoid hitting Telegram's rate limits
-                time.sleep(1) 
+                time.sleep(1) # Delay to avoid rate limits
+
+                # 2. Send the permanent explanation in a separate, spoiler-tagged message
+                explanation_text = q.get('explanation', '').strip()
+                if explanation_text:
+                    full_explanation_text = f"Q{question_number} Explanation:\n\n{explanation_text}"
+                    bot.send_message(
+                        chat_id=chat_id,
+                        text=full_explanation_text,
+                        entities=[telegram.MessageEntity(type=telegram.MessageEntity.SPOILER, offset=0, length=len(full_explanation_text))]
+                    )
+                    time.sleep(1) # Another small delay
+
             except Exception as e:
-                print(f"Failed to send question to {chat_id}: {e}")
+                print(f"Failed to send question or explanation to {chat_id}: {e}")
     
     # Update progress to the new index
     new_progress = end_index
