@@ -9,8 +9,10 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "YOUR_TELEGRAM_API_TOKEN")
 # Add chat IDs as a comma-separated string in your environment variables
 CHAT_IDS = os.getenv("CHAT_IDS", "7695772994,8070930921").split(',')
 
-QUESTIONS_FILE = '../TOPIC 1 TO 10.txt'
-PROGRESS_FILE = 'progress.txt'
+# Construct absolute paths based on the script's location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+QUESTIONS_FILE = os.path.join(SCRIPT_DIR, '..', 'TOPIC 1 TO 10.txt')
+PROGRESS_FILE = os.path.join(SCRIPT_DIR, 'progress.txt')
 QUESTIONS_PER_DAY = 20
 
 def get_progress():
